@@ -21,7 +21,7 @@ import os, sys
 if len(sys.argv) != 3:
 	sys.exit("Usage:\npython get-elib.py <ISBN> <title>")
 
-RTMPDUMP_CMD = "rtmpdump -r rtmpe://212.112.169.73/vod/ -y mp3:ISBN%(isbn)s/mp3/Avsnitt%(chapter)s -o %(title)s%(chapter)s.mp3"
+RTMPDUMP_CMD = "rtmpdump -r \"rtmpe://212.112.169.73/vod/\" -y \"mp3:ISBN%(isbn)s/mp3/Avsnitt%(chapter)s\" -o \"%(title)s%(chapter)s.mp3\""
 
 isbn = sys.argv[1]
 isbn = isbn.replace('-', '').strip()
