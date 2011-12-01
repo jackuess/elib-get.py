@@ -1,2 +1,7 @@
 Usage:
 python get-elib.py <ISBN> <title>
+
+Dependencies:
+- Python (>= 2.5)
+- Rtmpdump
+- Ffmpeg (otional - for flv to mp3 conversion)
