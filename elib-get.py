@@ -18,38 +18,45 @@
 
 import os, sys
 
-if len(sys.argv) != 3:
-	sys.exit("Usage:\npython get-elib.py <ISBN> <title>")
-
-RTMPDUMP_CMD = "rtmpdump -r \"rtmpe://212.112.169.73/vod/\" -y \"mp3:ISBN%(isbn)s/mp3/Avsnitt%(chapter)s\" -o \"%(title)s%(chapter)s.mp3\""
-
-isbn = sys.argv[1]
-isbn = isbn.replace('-', '').strip()
-
-title = sys.argv[2]
-
-for just in range(1, 10):
-	chapter = '1'.zfill(just)
+def download_chapter(n, isbn, title, just):
+	RTMPDUMP_CMD = "rtmpdump -r \"rtmpe://212.112.169.73/vod/\" -y \"mp3:ISBN%(isbn)s/mp3/Avsnitt%(chapter)s\" -o \"%(title)s%(chapter)s.flv\""
+	CONVERT_CMD = "ffmpeg -v quiet -i \"%(title)s%(chapter)s.flv\" -vn -acodec copy \"%(title)s%(chapter)s.mp3\""
+	
+	chapter = str(n).zfill(just)
 	status = os.system(RTMPDUMP_CMD % {'isbn': isbn,
 					'title': title,
 					'chapter': chapter})
 	if status == 0:
-		print("\033[32mLaddade ner avsnitt 1\033[0m")
-		break
+		print("\033[32mLaddade ner avsnitt %d\033[0m" % n)
+		status = os.system(CONVERT_CMD % {'title': title, 'chapter': chapter})
+		if status == 0:
+			print("\033[32mKonverterade avsnitt %d från flv till mp3\033[0m" % n)
+			os.remove(''.join((title, chapter, ".flv")))
+		else:
+			print("\033[31mKunde inte konvertera avsnitt %d från flv till mp3: kontrollera att ffmpeg är installerat\033[0m" % n)
+		return 0
 	else:
-		os.remove(''.join((title, chapter, ".mp3")))
+		os.remove(''.join((title, chapter, ".flv")))
+		return status
+
+if len(sys.argv) != 3:
+	sys.exit("Usage:\npython get-elib.py <ISBN> <title>")
+
+isbn = sys.argv[1]
+isbn = isbn.replace('-', '').strip()
+title = sys.argv[2]
+
+#Find first chapter and download it
+for just in range(1, 10):
+	status = download_chapter(1, isbn, title, just)
+	if status == 0:
+		break
 
 if status != 0:
 	sys.exit("Boken kunde inte laddas ner")
 
+#Download the rest of the chapters
 i = 2
-while True:
-	chapter = str(i).zfill(just)
-	status = os.system(RTMPDUMP_CMD % {'isbn': isbn,
-					'title': title,
-					'chapter': chapter})
-	if status != 0:
-		os.remove(''.join((title, chapter, ".mp3")))
-		break
-	print("\033[32mLaddade ner avsnitt %d\033[0m" % i)
+while status == 0:
+	status = download_chapter(i, isbn, title, just)
 	i += 1
