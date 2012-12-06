@@ -19,7 +19,7 @@
 import os, sys
 
 def download_chapter(n, isbn, title, just):
-	RTMPDUMP_CMD = "rtmpdump -r \"rtmpe://212.112.169.73/vod/\" -y \"mp3:ISBN%(isbn)s/mp3/Avsnitt%(chapter)s\" -o \"%(title)s%(chapter)s.flv\""
+	RTMPDUMP_CMD = "rtmpdump -r \"rtmpe://delivery-3.elib.se/vod/\" -y \"mp3:ISBN%(isbn)s/mp3/Avsnitt%(chapter)s\" -o \"%(title)s%(chapter)s.flv\""
 	CONVERT_CMD = "ffmpeg -v quiet -i \"%(title)s%(chapter)s.flv\" -vn -acodec copy \"%(title)s%(chapter)s.mp3\""
 	
 	chapter = str(n).zfill(just)
